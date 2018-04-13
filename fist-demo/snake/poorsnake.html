@@ -1,0 +1,268 @@
+<html>
+<head>
+
+</head>
+<body>
+        <canvas id="game" width="300" height="300"></canvas>
+</body>
+<script type="text/javascript">
+const SQU = 10;
+const AREA = 30
+class Point{
+    constructor(x,y){
+        this.x = x
+        this.y = y
+    }
+    getX(){
+        return this.x;
+    }
+    getY(){
+        return this.y;
+    }
+    getTrait(){
+        return {style:"black"};
+    }
+}
+class Food extends Point{
+    constructor(point){
+        super(point.getX(),point.getY());
+        this.Point = point;
+    }
+    getPoint(){
+        return this.Point;
+    }
+    getTrait(){
+        return {style:"red"};
+    }
+}
+class SnakeNode extends Point{
+    constructor(point){
+        super(point.getX(),point.getY());
+        this.Point = point;      
+    }
+    setPre(snakeNode){
+        this.Pre = snakeNode;
+    }
+    getPre(){
+        return this.Pre;
+    }
+    setNext(snakeNode){
+        this.Next = snakeNode;
+    }
+    getNext(){
+        return this.Next;
+    }
+    getPoint(){
+        return this.Point;
+    }
+    getTrait(){
+        return {style:"green"};
+    }
+}
+class Snake{    
+    constructor(/*array 用于存放蛇位置的顺序数组*/points){
+        var snakenodemid = null;
+        for(var i = 0; i < points.length; i ++){
+            var snakenodenew = new SnakeNode(points[i]);
+            if(i == 0){            
+                this.header = snakenodenew;
+            }else if(i == points.length -1){
+                this.tail = snakenodenew;
+            } 
+            this.link(snakenodemid,snakenodenew);            
+            snakenodemid = snakenodenew;
+        }
+    }
+    link(per,next){
+        per && per.setNext(next);
+        next && next.setPre(per);
+    }
+    getHead(){
+        return this.header;
+    }
+    getTail(){
+        return this.tail;
+    }
+    updateHeader(header){        
+        this.link(header,this.header);
+        this.header = header;
+    }
+    moveTail(){
+        this.tail = this.tail.getPre();
+        this.tail.setNext(null);
+    }
+}
+class SnakeCerebrum{
+    constructor(){
+        this.Environment = new Environment(AREA);
+        this.createSnake(15);
+        this.Rock();
+    }
+    Rock(){
+        var that = this;
+        setInterval(function(){
+            that.move()
+        },1000);
+    }
+    createSnake(start){
+        var linkeds = [this.Environment.getPoint(start + 1,start),this.Environment.getPoint(start + 2,start),this.Environment.getPoint(start + 3,start)];
+        this.Snake = new Snake(linkeds);
+        var snakenode = this.Snake.getHead();
+        this.Environment.updatePoint(snakenode);
+        snakenode = snakenode.getNext();
+        this.Environment.updatePoint(snakenode);
+        snakenode = snakenode.getNext();
+        this.Environment.updatePoint(snakenode);
+        this.Direction = "left";
+    }
+    refresh(){
+        this.clearSnake();
+        this.Environment.refresh();
+        this.createSnake(15);
+    }
+    clearSnake(){
+        var node = this.Snake.getHead();
+        while(node != null){
+            this.Environment.updatePoint(node.getPoint());
+            node = node.getNext();
+        }
+    }
+    moveHeader(point){        
+        var addTail = this.isFood(point);
+        var header = new SnakeNode(point);
+        this.Environment.updatePoint(header);
+        this.Snake.updateHeader(header);
+        if(!addTail){
+            var tail = this.Snake.getTail().getPoint();
+            if(!this.isFood(tail)){
+                this.Environment.updatePoint(this.Snake.getTail().getPoint());
+            }
+            this.Snake.moveTail();
+            return;
+        }
+        this.Environment.putFoodOnPlace();        
+    }
+    move(direction){
+        direction = direction || this.Direction; 
+        var header = this.Snake.getHead();
+        var next_point = null;
+        if(direction == "left"){
+            next_point = this.Environment.getPoint(header.getX() - 1,header.getY());
+        }else if(direction == "right"){
+            next_point = this.Environment.getPoint(header.getX() + 1,header.getY());
+        }else if(direction == "up"){
+            next_point = this.Environment.getPoint(header.getX(),header.getY() - 1);
+        }else if(direction == "down"){
+            next_point = this.Environment.getPoint(header.getX(),header.getY() + 1);
+        }
+        if(next_point == null || this.isSnakeNode(next_point)){
+            //重新开始
+            this.refresh();
+            return;
+        }
+        this.Direction = direction;
+        this.moveHeader(next_point)
+    }
+    monitor(e){
+        var keymap = {37:"left" ,38:"up",39:"right",40:"down"}
+            var key = e.which
+            var nd = keymap[key]
+            var g = this
+            if (g.Direction == "left" && nd == "right")
+              return 
+            if (g.Direction == "right" && nd == "left")
+              return   
+            if (g.Direction == "up" && nd == "down")
+              return 
+            if (g.Direction == "down" && nd == "up")
+              return 
+            var direction = keymap[key]
+            this.move(direction);
+    }
+    isFood(point){
+        // point.getX() == this.Environment.food.getX() && point.getY() == this.Environment.food.getY()
+        return this.Environment.getFood(point.getX(),point.getY()) != null;
+    }
+    isSnakeNode(point){        
+        return point instanceof SnakeNode;
+    }
+}
+class Environment{
+    constructor(len){
+        this.initDesktop();
+        this.initPoint(len);
+        this.len = len;
+        this.refresh();
+    }
+    initDesktop(){
+        var canvas = document.getElementById("game")
+        this.ctx = canvas.getContext("2d")
+        this.ctx.fillStyle ="black"
+        this.ctx.fillRect(0,0,AREA*SQU,AREA*SQU)
+    }
+    initPoint(len){
+        this.Place = new Array();
+        for(var i = 0; i < len; i ++){
+            var points = new Array();
+            // for(var j = 0; j < len; j ++){
+            //     var point = new Point(i,j);
+            //     points.push(point);
+            // }
+            this.Place.push(points);
+        }
+    }
+    isOut(point){
+        var x = point.getX();
+        var y = point.getY();
+        return !this.inPlace(x,y);
+    }
+    inPlace(x,y){
+        if( 0 <= x && x < this.len && 0 <= y && y < this.len){
+        //if( 0 <= x < this.len && 0 <= y < this.len){
+            return true;
+        }
+        return false;
+    }
+    updatePoint(point){
+        if(this.isOut(point)){
+            return false;
+        }
+        this.Place[point.getX()][point.getY()] = point;
+        this.draw(point);
+        return true;
+    }
+    draw(point){
+        var style = point.getTrait();
+        this.ctx.fillStyle = style.style;
+        this.ctx.fillRect(point.getX()*SQU,point.getY()*SQU,SQU,SQU);    
+    }
+    getPoint(x,y){
+        if(!this.inPlace(x,y)){
+           return null;
+        }
+        if(this.Place[x][y])
+           return this.Place[x][y]; 
+        return new Point(x,y);
+    }
+    getFood(x,y){
+        if(this.food.getX() == x && this.food.getY() == y)
+            return this.food;
+        return null;
+    }
+    refresh(){
+       this.food && this.updatePoint(this.food.getPoint());       
+       this.putFoodOnPlace();
+    }
+    putFoodOnPlace(){
+        var x = Math.floor(Math.random() * this.len); 
+        var y = Math.floor(Math.random() * this.len);        
+        this.food = new Food(this.getPoint(x,y));
+        this.draw(this.food);
+    }
+}
+    var cerebrum = new SnakeCerebrum() 
+    document.onkeydown = function(e){
+        cerebrum.monitor(e)
+    }   
+</script>
+</html>

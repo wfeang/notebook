@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RDemo.DAO
+namespace RDemo.Service.DAO
 {
     public abstract class DaoService
     {

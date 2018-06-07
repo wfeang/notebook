@@ -58,7 +58,7 @@ namespace RDemo
         {
             try
             {
-                string result = CreateAppear();
+                string result = AnalysisAppear();
                 FlushWirte(result);
             }
             catch (Exception ex)
@@ -83,7 +83,7 @@ namespace RDemo
             }
         }
 
-        protected virtual string CreateAppear()
+        protected virtual string AnalysisAppear()
         {
             return GetData(this.ObjInfo);
         }

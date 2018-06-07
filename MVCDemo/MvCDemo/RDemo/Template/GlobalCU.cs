@@ -53,7 +53,7 @@ namespace RDemo.Template
             }
             catch (Exception ex)
             {
-                throw new Exception("绘制视图信息时出错", ex);
+                throw new Exception("视图故障", ex);
             }
         }
 

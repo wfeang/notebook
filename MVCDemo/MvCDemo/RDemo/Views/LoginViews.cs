@@ -12,7 +12,7 @@ namespace RDemo.Views
         public LoginViews(User obj) : base(obj)
         {
         }
-        protected override string CreateAppear()
+        protected override string AnalysisAppear()
         {
             return string.Format("账号{0},请输入登录密码", this.ObjInfo.Account);
         }

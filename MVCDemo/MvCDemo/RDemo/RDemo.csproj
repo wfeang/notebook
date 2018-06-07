@@ -57,10 +57,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\Chat.cs" />
     <Compile Include="Controllers\Home.cs" />
+    <Compile Include="DAO\ChatService.cs" />
+    <Compile Include="DAO\DaoService.cs" />
+    <Compile Include="DAO\UserService.cs" />
+    <Compile Include="Models\ChatModel.cs" />
     <Compile Include="Models\DefaultModel.cs" />
     <Compile Include="Models\User.cs" />
-    <Compile Include="Template\Controllers.cs" />
+    <Compile Include="Template\Controller.cs" />
     <Compile Include="Template\DataRepository.cs" />
     <Compile Include="Template\DbFactory.cs" />
     <Compile Include="Program.cs" />
@@ -70,6 +75,7 @@
     <Compile Include="Template\Routes.cs" />
     <Compile Include="Template\ViewDescription.cs" />
     <Compile Include="Template\Views.cs" />
+    <Compile Include="Views\ChatMachineViews.cs" />
     <Compile Include="Views\LoginViews.cs" />
   </ItemGroup>
   <ItemGroup>

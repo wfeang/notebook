@@ -60,7 +60,7 @@
     <Compile Include="Controllers\Chat.cs" />
     <Compile Include="Controllers\Home.cs" />
     <Compile Include="Service.DAO\ChatService.cs" />
-    <Compile Include="Service.DAO\Service.cs" />
+    <Compile Include="Service.DAO\DaoService.cs" />
     <Compile Include="Service.DAO\UserService.cs" />
     <Compile Include="Models\ChatModel.cs" />
     <Compile Include="Models\DefaultModel.cs" />
